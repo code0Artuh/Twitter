@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tweet { // DTO FEITO
+  id            Int                  @id @default(autoincrement())
+  conteudo      String               @db.VarChar(140)
+  usuarioId     Int
+  usuario       Usuario              @relation(fields: [usuarioId], references: [id])
+  categorias    CategoriasOnTweets[]
+  favoriteTweet FavoriteTweet[]
+  created_at    DateTime             @default(now()) @map("created_at")
+}
+
+model Categoria { // DTO FEITO
+  id         Int                  @id @default(autoincrement())
+  nome       String
+  tweet      CategoriasOnTweets[]
+  created_at DateTime             @default(now()) @map("created_at")
+}
+
+model Seguidores { // DTO FEITO
+  id         Int      @id @default(autoincrement())
+  nome       String
+  usuarioId  Int
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  created_at DateTime @default(now()) @map("created_at")
+}
+
+model Seguindo { // DTO FEITO
+  id         Int      @id @default(autoincrement())
+  nome       String
+  usuarioId  Int
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  created_at DateTime @default(now()) @map("created_at")
+}
+
+model Usuario { // DTO FEITO
+  id            Int             @id @default(autoincrement())
+  nome          String
+  sobrenome     String
+  email         String          @unique
+  senha         String
+  sobre         String
+  aniversario   String
+  tweet         Tweet[]
+  seguidores    Seguidores[]
+  seguindo      Seguindo[]
+  favoriteTweet FavoriteTweet[]
+  created_at    DateTime        @default(now()) @map("created_at")
+}
+
+model CategoriasOnTweets { // DTO FEITO
+  tweet       Tweet     @relation(fields: [tweetId], references: [id])
+  tweetId     Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  categoriaId Int
+  assignedAt  DateTime  @default(now())
+  assignedBy  String
+
+  @@id([tweetId, categoriaId])
+}
+
+model FavoriteTweet { //DTO FEITO
+  tweetId    Int
+  tweet      Tweet    @relation(fields: [tweetId], references: [id])
+  usuarioId  Int
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  assignedAt DateTime @default(now())
+  assignedBy String
+
+  @@id([tweetId, usuarioId])
+}
